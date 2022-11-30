@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config//db.config");
 const shortid = require('shortid');
-const Note = require ('../models/notes_models');
+
 
 
    const Vault = sequelize. define("vaults", {
