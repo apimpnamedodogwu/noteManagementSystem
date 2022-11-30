@@ -23,7 +23,7 @@ exports.createANote = async (req, res) => {
 exports.deleteANote = async (req, res) => {
     const nonExistingNote = await Note.findByPk(req.params.id);
 
-    if(nonExistingNote) {
+    if(!nonExistingNote) {
         return res.status(404).json({
             status: 'error',
             message: `Note with id ${req.params.id} does not exist.`
