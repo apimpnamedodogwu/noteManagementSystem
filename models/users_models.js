@@ -2,33 +2,9 @@
 const sequelize = require("../config//db.config");
 const { DataTypes } = require("sequelize");
 const shortid = require('shortid');
-// const Note = require("./notes_models");
-// const Note = require("./notes_models");
-const Vault = sequelize. define("vaults", {
-    id: {
-        primaryKey: true,
-    type: DataTypes.STRING,
-    required: true,
-    default: shortid.generate(),
-    },
+const Vault = require("./vaults_models");
+const Note = require("./notes_models");
 
-    title: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-
-    body: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-
-    password: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    }
-}
-
-);
 
 
 const User = sequelize.define("users", {  
@@ -60,41 +36,18 @@ const User = sequelize.define("users", {
     emal_address: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
     },
  }
 
 );
 
-const Note = sequelize.define("notes", {
-    id: {
-        primaryKey: true,
-        type: DataTypes.STRING,
-        required: true,
-        default: shortid.generate(),
-    },
 
-    title: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-
-    body: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-
-}
-);
-
-
-
-// Note.hasOne(User);
-// Note.hasOne(Vault);
-Note.belongsTo(User);
-Note.belongsTo(Vault);
 
 User.hasOne(Vault);
-Vault.belongsTo(User);
 User.hasMany(Note);
+Note.belongsTo(User);
+Note.belongsTo(Vault);
+Vault.belongsTo(User);
 
 module.exports = User;

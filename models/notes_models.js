@@ -3,8 +3,6 @@ const sequelize = require("../config//db.config");
 
 
 const shortid = require('shortid');
-const User = require('./users_models');
-const Vault = require('./vaults_models');
 
 const Note = sequelize.define("notes", {
     id: {
@@ -17,6 +15,7 @@ const Note = sequelize.define("notes", {
     title: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
     },
 
     body: {
@@ -27,11 +26,5 @@ const Note = sequelize.define("notes", {
 }
 );
 
-
-
-// Note.hasOne(User);
-// Note.hasOne(Vault);
-Note.belongsTo(User);
-Note.belongsTo(Vault);
 
 module.exports = Note;
