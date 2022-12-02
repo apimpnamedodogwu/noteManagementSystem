@@ -1,109 +1,119 @@
 const Note = require('../models/notes_models');
 
-exports.createANote = async (req, res) => {
-    const existingTitle = await Note.findOne(req.body.title);
+const Data = {
+    title: Data.title,
+    body: Data.body,
+    user_id: Data.user_id,
+};
+
+exports.createANote = async (Data) => {
+    
+    const existingTitle = await Note.findOne({where: {title: Data.title}});
 
     if(existingTitle) {
-        return res.status(404).json({
+        return Data.status(404).json({
             status: 'error',
-            message: `A note with ${req.body.title} already exists.`
+            message: `A note with ${Data.title} already exists.`
         });
     };
 
-    const note = await Note.create({
-        title: req.body.title,
-        body: req.body.body,
-    });
-    return res.status(200).json({
+    const note = await Note.create(Data);
+    return Data.status(200).json({
         status: 'success',
-        message: `Your note with title ${note.title} has been successfully created.`
+        message: `Your note with title ${note.title} has been successfully created.`,
+        notes: note,
     });
 }
 
-exports.deleteANote = async (req, res) => {
-    const nonExistingNote = await Note.findByPk(req.params.id);
+exports.deleteANote = async (Data) => {
+    const nonExistingNote = await Note.findByPk(Data.id);
 
     if(!nonExistingNote) {
-        return res.status(404).json({
+        return Data.status(404).json({
             status: 'error',
-            message: `Note with id ${req.params.id} does not exist.`
+            message: `Note with id ${Data.id} does not exist.`
         });
     };
 
     await Note.destroy({
-        where: {id: req.params.id}
+        where: {id: Data.id}
     });
-    return res.status(200).json({
+    return Data.status(200).json({
         status: 'success',
-        message: `Note with id ${req.params.id} has been deleted successfully.`
+        message: `Note with id ${Data.id} has been deleted successfully.`
     });
 }
 
-exports.updateANoteByTitle = async (req, res) => {
-    const existingTitle = await Note.findOne(req.body.title);
+exports.updateANoteByTitle = async (Data) => {
+    const existingTitle = await Note.findOne({where: {title: Data.title}});
 
     if(existingTitle) {
-        return res.status(404).json({
+        return Data.status(404).json({
             status: 'error',
-            message: `A note with ${req.body.title} already exists.`
+            message: `A note with ${Data.title} already exists.`
         });
     };
 
-    const noteToBeUpdated = await Note.findByPk(req.params.id);
+    const noteToBeUpdated = await Note.findByPk(Data.id);
 
     if(!noteToBeUpdated) {
-        return res.status(404).json({
+        return Data.status(404).json({
             status: 'error',
-            message: `Note with id ${req.params.id} does not exist.`
+            message: `Note with id ${Data.id} does not exist.`
         });
     };
 
-    await Note.update({
-        title: req.body.title,
+    const updatedNote = await Note.update({
+        title: noteToBeUpdated.title,
     });
-    return res.status(200).json({
+    return Data.status(200).json({
         status: 'success',
-        message: 'Your note has been updated successfully.'
+        message: 'Your note has been updated successfully.',
+        updatedNote,
     });
 }
 
-exports.updateNoteByBody = async (res, req) => {
+exports.updateNoteByBody = async (Data) => {
 
-    const noteToBeUpdated = await Note.findByPk(req.params.id);
+    const noteToBeUpdated = await Note.findByPk(Data.id);
 
     if(!noteToBeUpdated) {
-        return res.status(404).json({
+        return Data.status(404).json({
             status: 'error',
-            message: `Note with id ${req.params.id} does not exist.`
+            message: `Note with id ${Data.id} does not exist.`
         });
     };
 
-    await Note.update({
-        body: req.body.body
+    const updatedNote = await Note.update({
+        body: noteToBeUpdated.body
     });
-    return res.status(200).json({
+    return Data.status(200).json({
         status: 'success',
-        message: 'Your note has been updated successfully.'
+        message: 'Your note has been updated successfully.',
+        updatedNote,
     });
 }
 
-exports.getNote = async (req, res) => {
-    const note = await Note.findByPk(req.params.id)
+exports.getNote = async (Data) => {
+    const note = await Note.findByPk(Data.id)
 
     if(!note) {
         return res.status(404).json({
             status: 'error',
-            message: `Note with id ${req.params.id} does not exist.`
+            message: `Note with id ${Data.id} does not exist.`
         });
     };
-    return res.status(200).json({
+    return Data.status(200).json({
         status: 'Ok',
         note,
     })
 }
 
-exports.getAllNotes = async (req, res) => {
-    const notes = await Note.findAll();
+
+exports.getAllNotes = async (res) => {
+    const notes = await Note.findAll({
+        limit: 5,
+    });
     return res.status(200).json({
         status: 'success',
         notes,
