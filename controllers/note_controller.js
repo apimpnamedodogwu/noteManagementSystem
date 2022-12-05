@@ -1,10 +1,8 @@
 const Note = require("../models/notes_models");
+const NoteIDError = require("../errors/notes/non_existing_note_id");
+const ExistingTitle = require("../errors/notes/existing_title");
+const NonExistingTitle = require("../errors/notes/non_existing_title");
 
-// const Data = {
-//     title: Data.title,
-//     body: Data.body,
-//     user_id: Data.user_id,
-// };
 
 exports.createANote = async (Data) => {
   const existingTitle = await Note.findOne({ where: { title: Data.title } });
@@ -17,96 +15,70 @@ exports.createANote = async (Data) => {
   return note;
 };
 
-// exports.deleteANote = async (id) => {
-//     const nonExistingNote = await Note.findByPk(Data.id);
+exports.deleteANote = async (id) => {
+    const existingNote = await Note.findOne({
+        where: {userId: id},
+    });
 
-//     if(!nonExistingNote) {
-//         return Data.status(404).json({
-//             status: 'error',
-//             message: `Note with id ${Data.id} does not exist.`
-//         });
-//     };
+    if(!existingNote) {
+        throw new NoteIDError(id);
+    };
+    
 
-//     await Note.destroy({
-//         where: {id: Data.id}
-//     });
-//     return Data.status(200).json({
-//         status: 'success',
-//         message: `Note with id ${Data.id} has been deleted successfully.`
-//     });
-// }
+    await Note.destroy({
+        where: {id: existingNote.id}
+    });
+    return;
+}
 
-// exports.updateANoteByTitle = async (Data) => {
-//     const existingTitle = await Note.findOne({where: {title: Data.title}});
+exports.updateANoteByTitle = async (title) => {
+    const existingNote = await Note.findOne({where: {title: title}});
 
-//     if(existingTitle) {
-//         return Data.status(404).json({
-//             status: 'error',
-//             message: `A note with ${Data.title} already exists.`
-//         });
-//     };
+    if(!existingNote) {
+        throw new NonExistingTitle(title);
+    };
 
-//     const noteToBeUpdated = await Note.findByPk(Data.id);
+    const noteToBeUpdatedByTitle = await Note.update({
+        where: {title: title},
+    });
+    return noteToBeUpdatedByTitle;
 
-//     if(!noteToBeUpdated) {
-//         return Data.status(404).json({
-//             status: 'error',
-//             message: `Note with id ${Data.id} does not exist.`
-//         });
-//     };
+};
 
-//     const updatedNote = await Note.update({
-//         title: noteToBeUpdated.title,
-//     });
-//     return Data.status(200).json({
-//         status: 'success',
-//         message: 'Your note has been updated successfully.',
-//         updatedNote,
-//     });
-// }
+exports.updateNoteByBody = async (title, body) => {
 
-// exports.updateNoteByBody = async (Data) => {
+    const existingNote = await Note.findOne({where: {title: title}});
 
-//     const noteToBeUpdated = await Note.findByPk(Data.id);
+    if(!existingNote) {
+        throw new NonExistingTitle(title);
+    };
 
-//     if(!noteToBeUpdated) {
-//         return Data.status(404).json({
-//             status: 'error',
-//             message: `Note with id ${Data.id} does not exist.`
-//         });
-//     };
+    const noteTobeUpdateByBody = await Note.findOne({where: {
+        body: body,
 
-//     const updatedNote = await Note.update({
-//         body: noteToBeUpdated.body
-//     });
-//     return Data.status(200).json({
-//         status: 'success',
-//         message: 'Your note has been updated successfully.',
-//         updatedNote,
-//     });
-// }
+    }});
+    return noteTobeUpdateByBody;
 
-// exports.getNote = async (Data) => {
-//     const note = await Note.findByPk(Data.id)
+};
 
-//     if(!note) {
-//         return res.status(404).json({
-//             status: 'error',
-//             message: `Note with id ${Data.id} does not exist.`
-//         });
-//     };
-//     return Data.status(200).json({
-//         status: 'Ok',
-//         note,
-//     })
-// }
+exports.getANote = async (id) => {
+    const existingNote = await Note.findOne({
+        where: {userId: id},
+    });
 
-// exports.getAllNotes = async (res) => {
-//     const notes = await Note.findAll({
-//         limit: 5,
-//     });
-//     return res.status(200).json({
-//         status: 'success',
-//         notes,
-//     })
-// }
+    if(!existingNote) {
+        throw new NoteIDError(id);
+
+    } else if(existingNote) {
+        return existingNote;
+    };
+
+}
+
+exports.getAllNotes = async (id) => {
+    const notes = await Note.findAll({
+        where: {userId: id},
+        limit: 5,
+    });
+    return notes;
+};

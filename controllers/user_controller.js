@@ -1,6 +1,7 @@
 const User = require("../models/users_models");
 const Vault = require("../models/vaults_models");
 const note = require("../controllers/note_controller");
+const UserIDError = require("../errors/users/non_existing_user_id");
 
 exports.registerAUser = async (req, res) => {
   const existingUser = await User.findOne({
@@ -43,7 +44,9 @@ exports.userCanCreateANote = async (req, res) => {
       status: "error",
       message: `User with ${req.body.email} does not exist.`,
     });
-  }
+  };
+
+  
   const noteDetails = {
     title: req.body.title,
     body: req.body.body,
@@ -64,39 +67,77 @@ exports.userCanCreateANote = async (req, res) => {
   });
 };
 
-const userCanDeleteANote = async (Data) => {
-  const existingUser = await User.findByPk(Data.id);
+exports.userCanDeleteANote = async (req, res) => {
+  const existingUser = await User.findByPk(req.params.id);
 
   if (!existingUser) {
-    return Data.status(404).json({
-      status: "error",
-      message: `User with ${Data.id} does not exist.`,
-    });
+    throw new UserIDError(req.params.id);
   }
 
-  const deletedNote = note.deleteANote(existingUser);
-  return Data.json({
-    deletedNote,
+  await note.deleteANote(existingUser);
+  return res.json({
+    status: 'deleted',
+    message: "Your note has been deleted successfully."
   });
 };
 
-const userCanGetANote = async (Data) => {
-  const existingUser = await User.findByPk(Data.id);
+exports.userCanUpdateNoteByTitle = async (req, res) => {
+    const existingUser = await User.findByPk(req.body.id);
 
-  if (!existingUser) {
-    return Data.status(404).json({
-      status: "error",
-      message: `User with ${Data.id} does not exist.`,
+    if (!existingUser) {
+        throw new UserIDError(req.params.id);
+      };
+
+    const updatedNoteByTitle = await note.updateANoteByTitle(req.body.title);
+    return res.status(200).json({
+        status: "success",
+        updatedNoteByTitle,
     });
-  }
 
-  const foundNote = note.getNote(existingUser);
-
-  return Data.json({
-    foundNote,
-  });
 };
 
-const userCanGetAllNotes = () => {
-  return note.getAllNotes();
+exports.userCanUpdateNoteByBody = async (req, res) => {
+    const existingUser = await User.findByPk(req.body.id);
+
+    if (!existingUser) {
+        throw new UserIDError(req.params.id);
+    };
+
+    const updatedNoteByBody = await note.updateNoteByBody(req.body.title, req.body.body);
+    return res.status(200).json({
+        status: "success",
+        updatedNoteByBody,
+    });
+}
+
+exports.userCanGetANote = async (req, res) => {
+  const existingUser = await User.findByPk(req.params.id);
+
+  if (!existingUser) {
+    throw new UserIDError(req.params.id);
+  };
+
+  const a_note = await note.getANote(req.params.id);
+
+  return res.status(200).json({
+    status: "success",
+    a_note,
+  });
+
+};
+
+
+exports.userCanGetAllNotes = async (req, res) => {
+    const existingUser = await User.findByPk(req.params.id);
+
+    if (!existingUser) {
+        throw new UserIDError(req.params.id);
+    };
+    
+    const notes = await note.getAllNotes(req.params.id);
+    return res.status(200).json({
+        status: "success",
+        notes,
+      });
+
 };
