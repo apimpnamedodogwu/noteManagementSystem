@@ -26,7 +26,7 @@ exports.deleteANote = async (id) => {
     
 
     await Note.destroy({
-        where: {id: existingNote.id}
+        where: {userId: id}
     });
     return;
 }
