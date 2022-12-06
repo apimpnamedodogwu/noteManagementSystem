@@ -68,10 +68,9 @@ exports.getANote = async (id) => {
 
     if(!existingNote) {
         throw new NoteIDError(id);
-
-    } else if(existingNote) {
-        return existingNote;
+        
     };
+    return existingNote;
 
 }
 
