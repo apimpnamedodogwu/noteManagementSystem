@@ -1,7 +1,12 @@
 const User = require("../models/users_models");
 const Vault = require("../models/vaults_models");
 const note = require("../controllers/note_controller");
+const vault = require("../controllers/vault_controller");
 const UserIDError = require("../errors/users/non_existing_user_id");
+const bycrypt = ("bcryptjs");
+const InvalidPasswordError = require("../errors/invalid_password");
+const Note = require("../models/notes_models");
+
 
 exports.registerAUser = async (req, res) => {
   const existingUser = await User.findOne({
@@ -23,7 +28,7 @@ exports.registerAUser = async (req, res) => {
 
   await Vault.create({
     name: user.last_name + " " + user.first_name,
-    password: req.body.password,
+    password: bycrypt.hash(req.body.password, 10),
     userId: user.id,
   });
 
@@ -140,4 +145,107 @@ exports.userCanGetAllNotes = async (req, res) => {
         notes,
       });
 
+};
+
+exports.userCanAddANewNoteToAVault = async (req, res) => {
+  const existingUser = await User.findByPk(req.body.id);
+
+  if (!existingUser) {
+    throw new UserIDError(req.body.id);
+  };
+
+  if(!bycrypt.compare(req.body.password, password)) {
+    throw new InvalidPasswordError("Your password is incorrect!")
+  };
+
+  const noteDetails = {
+    title: req.body.title,
+    body: req.body.body,
+    userId: existingUser.id,
+  };
+
+  const createdNote = await note.createANote(noteDetails);
+
+  const addedNoteToVault = await vault.addANoteToAVault(createdNote);
+  return res.status(200).json({
+    status: "success",
+    addedNoteToVault,
+
+  });
+
+};
+
+exports.userCanAddAnExistingNote = async (req, res) => {
+  const existingUser = await User.findByPk(req.body.id);
+
+  if (!existingUser) {
+    throw new UserIDError(req.body.id);
+  };
+
+  if(!bycrypt.compare(req.body.password, password)) {
+    throw new InvalidPasswordError("Your password is incorrect!")
+  };
+
+  const existingNote = await Note.findOne({
+    where: {title: req.body.title}
+  });
+
+  const addedNoteToVault = await vault.addANoteToAVault(existingNote);
+  return res.status(200).json({
+    status: "success",
+    addedNoteToVault,
+
+  });
+};
+
+exports.userCanDeleteANoteFromAVault = async (req, res) => {
+  const existingUser = await User.findByPk(req.body.id);
+
+  if (!existingUser) {
+    throw new UserIDError(req.body.id);
+  };
+
+  if(!bycrypt.compare(req.body.password, password)) {
+    throw new InvalidPasswordError("Your password is incorrect!")
+  };
+
+
+  await vault.deleteANoteFromVault(req.body.id);
+  return res.json({
+    status: 'deleted',
+    message: "Your note has been deleted successfully."
+  });
+};
+
+exports.userCanUpdateANoteByTitle = async (req, res) => {
+  const existingUser = await User.findByPk(req.body.id);
+
+  if (!existingUser) {
+    throw new UserIDError(req.body.id);
+  };
+
+  if(!bycrypt.compare(req.body.password, password)) {
+    throw new InvalidPasswordError("Your password is incorrect!")
+  };
+
+  const updatedNoteInVault = await vault.updateANoteByTitleInAVault(req.body.id, req.body.title);
+  return res.status(200).json({
+    status: "success",
+    updatedNoteInVault,
+
+  });
+};
+
+exports.userCanUpdateANoteByBody = async (req, res) => {
+  const existingUser = await User.findByPk(req.body.id);
+
+  if (!existingUser) {
+    throw new UserIDError(req.body.id);
+  };
+
+  if(!bycrypt.compare(req.body.password, password)) {
+    throw new InvalidPasswordError("Your password is incorrect!")
+  };
+
+  const updatedNoteInVault = await vault.updateNoteByBodyInAVault(req.body.title, req.body.body);
 };

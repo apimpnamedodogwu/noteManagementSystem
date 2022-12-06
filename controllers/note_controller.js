@@ -1,6 +1,6 @@
 const Note = require("../models/notes_models");
 const NoteIDError = require("../errors/notes/non_existing_note_id");
-const ExistingTitle = require("../errors/notes/existing_title");
+// const ExistingTitle = require("../errors/notes/existing_title");
 const NonExistingTitle = require("../errors/notes/non_existing_title");
 
 
