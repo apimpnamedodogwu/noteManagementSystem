@@ -248,4 +248,9 @@ exports.userCanUpdateANoteByBody = async (req, res) => {
   };
 
   const updatedNoteInVault = await vault.updateNoteByBodyInAVault(req.body.title, req.body.body);
+  return res.status(200).json({
+    status: "success",
+    updatedNoteInVault,
+
+  });
 };
