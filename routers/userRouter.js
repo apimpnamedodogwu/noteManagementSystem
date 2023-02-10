@@ -12,6 +12,7 @@ const {
 const userRouter = express();
 
 userRouter.route("/register").post(registerAUser);
+
 userRouter.route("").post(userCanCreateANote);
 userRouter.route("").delete(userCanDeleteANote);
 userRouter.route("/body").patch(userCanUpdateNoteByTitle);

@@ -9,28 +9,30 @@ const Note = require("../models/notes_models");
 
 
 exports.registerAUser = async (req, res) => {
+  console.log(req);
   const existingUser = await User.findOne({
-    where: { email_address: req.body.email },
+    where: { email_address: req.email_address },
   });
   if (existingUser) {
     return res.status(404).json({
       status: "error",
-      message: `User with email ${req.body.email} already exists.`,
+      message: `User with email ${req.email_address} already exists.`,
     });
-  }
+  };
 
   const user = await User.create({
-    last_name: req.body.last_name,
-    first_name: req.body.first_name,
-    username: req.body.username,
-    email_address: req.body.email,
+    last_name: req.last_name,
+    first_name: req.first_name,
+    username: req.username,
+    email_address: req.email_address,
   });
 
   await Vault.create({
     name: user.last_name + " " + user.first_name,
-    password: bycrypt.hash(req.body.password, 10),
+    password: bycrypt.hash(req.password, 10),
     userId: user.id,
   });
+  
 
   return res.status(200).json({
     status: "success",
