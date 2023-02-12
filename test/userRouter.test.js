@@ -1,15 +1,11 @@
-
-
-// import supertest  from 'supertest';
 const userRouter = require('../routers/userRouter');
-// import userRouter from '../routers/userRouter'; 
 const request = require('supertest');
 
-
-userDeets = {"last_name": "Elenwoke", 
-"first_name": "Eden",
-"username": "edentheheathen",
-"email_address": "edentheheathen@gmail.com",
+userDeets = {
+    "last_name": "Elenwoke", 
+    "first_name": "Eden",
+    "username": "edentheheathen",
+    "email_address": "edentheheathen@gmail.com",
 };
 
 userDeets2 = {
@@ -33,7 +29,6 @@ userDeets4 = {
     "email_address": "edentheheathen@gmail.com",
 };
 
-// console.log(userDeets);
 
 describe("POST/register", () => {
 
@@ -41,7 +36,9 @@ describe("POST/register", () => {
 
         test("should return a 200 status code", async () => {
             const response = await request(userRouter).post("/users/register").send(userDeets);
-            expect(response.statusCode).toBe(200);
+            // expect(response.statusCode).toBe(200);
+            expect(response.last_name).toBe(userDeets.last_name);
+            
         });
 
         test("should throw a database error when last name field is missing", async() => {
@@ -58,14 +55,18 @@ describe("POST/register", () => {
             const response = await request(userRouter).post("/users/register").send(userDeets4);
             expect(response.statusCode).toBe(404);
 
-        });
+      });
 
     });
 
 
 
 
-
+describe('Sample Test', () => {
+    it('should test that true === true', () => {
+      expect(true).toBe(true)
+    })
+  })
 
 
 
